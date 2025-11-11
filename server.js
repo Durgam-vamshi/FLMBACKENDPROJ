@@ -1,5 +1,3 @@
-
-
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -17,21 +15,21 @@ app.use(express.json());
 // Routes
 app.use("/api/companies", companyRoutes);
 
-// Ensure table exists before starting server
+// Ensure table exists with UNIQUE constraint
 db.serialize(() => {
   db.run(
     `CREATE TABLE IF NOT EXISTS companies (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       location TEXT NOT NULL,
-      industry TEXT NOT NULL
+      industry TEXT NOT NULL,
+      UNIQUE(name, location, industry)  -- Prevent duplicates
     )`,
     (err) => {
       if (err) {
         console.error("Error creating table:", err.message);
       } else {
         console.log("Companies table ready.");
-        // Start server only after table exists
         app.listen(PORT, () =>
           console.log(`Server running on port ${PORT}`)
         );
